@@ -102,13 +102,13 @@ $(document).ready( function() {
 });
 
 var getInspirers = function(answerers) {
-
+	var myURL = "http://api.stackexchange.com/2.2/tags/" + answerers + "/top-answerers/all_time";
 	var request = {
 		tags: answerers,
 		site: 'stackoverflow',
 	};
 	$.ajax({
-		url: "http://api.stackexchange.com/2.2/tags/javascript/top-answerers/all_time",
+		url: myURL,
 		data: request,
 		dataType: "jsonp",
 		type: "GET",
@@ -133,28 +133,16 @@ var showPeople = function(people) {
 	
 	var result = $('.templates .answerers').clone();
 	
-	// Set the question properties in result
 	var nameElem = result.find('.inspirerName');
 	nameElem.attr('href', people.user.link);
 	nameElem.text(people.user.display_name);
 
-	// // set the date asked property in result
-	// var asked = result.find('.asked-date');
-	// var date = new Date(1000*question.creation_date);
-	// asked.text(date.toString());
+	var posts = result.find('.postNumber');
+	posts.text(people.post_count);
 
-	// // set the .viewed for question property in result
-	// var viewed = result.find('.viewed');
-	// viewed.text(question.view_count);
+	$('.totalScore').text(people.score);
+	$('.reputation').text(people.user.reputation);
 
-	// // set some properties related to asker
-	// var asker = result.find('.asker');
-	// asker.html('<p>Name: <a target="_blank" '+
-	// 	'href=http://stackoverflow.com/users/' + question.owner.user_id + ' >' +
-	// 	question.owner.display_name +
-	// 	'</a></p>' +
-	// 	'<p>Reputation: ' + question.owner.reputation + '</p>'
-	// );
 
 	return result;
 };
