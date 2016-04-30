@@ -66,13 +66,14 @@ var getUnanswered = function(tags) {
 	})
 	.done(function(result){ //this waits for the ajax to return with a succesful promise object
 		var searchResults = showSearchResults(request.tagged, result.items.length);
-
+		console.log(item);
 		$('.search-results').html(searchResults);
 		//$.each is a higher order function. It takes an array and a function as an argument.
 		//The function is executed once for each item in the array.
 		$.each(result.items, function(i, item) {
 			var question = showQuestion(item);
 			$('.results').append(question);
+			
 		});
 	})
 	.fail(function(jqXHR, error){ //this waits for the ajax to return with an error promise object
@@ -91,4 +92,69 @@ $(document).ready( function() {
 		var tags = $(this).find("input[name='tags']").val();
 		getUnanswered(tags);
 	});
+	$('.inspiration-getter').submit(function(e) {
+		e.preventDefault();
+		$('.results').html('');
+		var answerers = $(this).find("input[name='answerers']").val();
+		console.log(answerers);
+		getInspirers(answerers);
+	});
 });
+
+var getInspirers = function(answerers) {
+
+	var request = {
+		tags: answerers,
+		site: 'stackoverflow',
+	};
+	$.ajax({
+		url: "http://api.stackexchange.com/2.2/tags/javascript/top-answerers/all_time",
+		data: request,
+		dataType: "jsonp",
+		type: "GET",
+	})
+	.done(function(result){
+		var searchResults = showSearchResults(request.tags, result.items.length);
+		$('.search-results').html(searchResults);
+		$.each(result.items, function(i, item) {
+			var people = showPeople(item);
+			$('.results').append(people);
+		});
+	})
+	.fail(function(jqXHR, error){
+		var errorElem = showError(error);
+		$('.search-results').append(errorElem);
+		console.log(error);
+	});
+};
+
+var showPeople = function(people) {
+	console.log(people);
+	
+	var result = $('.templates .answerers').clone();
+	
+	// Set the question properties in result
+	var nameElem = result.find('.inspirerName');
+	nameElem.attr('href', people.user.link);
+	nameElem.text(people.user.display_name);
+
+	// // set the date asked property in result
+	// var asked = result.find('.asked-date');
+	// var date = new Date(1000*question.creation_date);
+	// asked.text(date.toString());
+
+	// // set the .viewed for question property in result
+	// var viewed = result.find('.viewed');
+	// viewed.text(question.view_count);
+
+	// // set some properties related to asker
+	// var asker = result.find('.asker');
+	// asker.html('<p>Name: <a target="_blank" '+
+	// 	'href=http://stackoverflow.com/users/' + question.owner.user_id + ' >' +
+	// 	question.owner.display_name +
+	// 	'</a></p>' +
+	// 	'<p>Reputation: ' + question.owner.reputation + '</p>'
+	// );
+
+	return result;
+};
